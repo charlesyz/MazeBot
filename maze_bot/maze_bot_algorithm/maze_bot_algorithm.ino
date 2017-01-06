@@ -1,28 +1,49 @@
 #include <LiquidCrystal.h>
+
 LiquidCrystal lcd(3, 4, 7, 8, 11, 12, 13); // lcd pins
 
-// pins
-const int Echo = A5;            // input echo pin for ultrasound (gets echo)
-const int Trig = A4;            // output trigger pin for ultrasound (sends sound)
+struct cell {
+  // 4 types: o = open(not explored), x = dead, v = part of the solution, s = start, f = finish.
+  char type;
+
+  // ints to hold if there are avaliable pathways in each direction. false = no path, true = path
+  // 0 = north, 1 = east, 2 = south, 3 = west
+  bool connections[3];
+};
+
+// =============================== pins ===========================================
+const short Echo = A5;            // input echo pin for ultrasound (gets echo)
+const short Trig = A4;            // output trigger pin for ultrasound (sends sound)
 
 // motor pins
-const int Left_motor_back = 9;  // left motor back
-const int Left_motor_go = 5;    // left motor forwards
-const int Right_motor_go = 6;   // right motor forwards
-const int Right_motor_back = 10;// right motor back
+const short Left_motor_back = 9;  // left motor back
+const short Left_motor_go = 5;    // left motor forwards
+const short Right_motor_go = 6;   // right motor forwards
+const short Right_motor_back = 10;// right motor back
 
-const int key = A0;             // Button
-const int beep = A1;            // Speaker
+const short key = A0;             // Button
+const short beep = A1;            // Speaker
 
-const int SensorRight = A2;     //Right bottom mounted IR sensor (P3.2 OUT1)
-const int SensorLeft = A3;      //Left bottom mounted IR sensor(P3.3 OUT2)
+const short SensorRight = A2;     //Right bottom mounted IR sensor (P3.2 OUT1)
+const short SensorLeft = A3;      //Left bottom mounted IR sensor(P3.3 OUT2)
 
-const int servopin = 2;         // pin controlling the servo
+const short servopin = 2;         // pin controlling the servo
 
+// ============================== globals ==========================================
 const unsigned short RunSpeed = 150;        // analog motor speed
+
+const int numRows = 4;
+const int numCols = 4;
+
+int dir = 0; // current direction the robot is facing. 0 = north, 1 = east, 2 = south, 3 = west
+
+// matrix holding the maze info
+cell maze[numRows + 2][numCols + 2];
+
 
 void setup() {
   Serial.begin(9600);
+
   // initialise pins to input/output
   pinMode(Left_motor_go, OUTPUT); // PIN 8 (PWM)
   pinMode(Left_motor_back, OUTPUT); // PIN 9 (PWM)
@@ -34,6 +55,24 @@ void setup() {
   pinMode(Trig, OUTPUT);
   lcd.begin(16, 2);         // start lcd
   pinMode(servopin, OUTPUT);
+
+  // initialise maze borders to x
+  for (int i = 0; i < numRows + 2; i++) {
+    for (int j = 0; j < numCols + 2; j++) {
+      maze[i][j].type = 'x';
+      // default all connections to false;
+      for (int k = 0; i < 4; i++) {
+        maze[i][j].connections[k] = false;
+      }
+    }
+  }
+  // set maze cell types to open
+  for (int i = 1; i < numRows; i++)
+    for (int j = 1; j < numCols; j++)
+      maze[i][j].type = 'o';
+
+  // initialise starting position
+  maze[1][1].type = 's';
 }
 
 // go forwards
@@ -146,13 +185,13 @@ void Distance_display(int Distance) {
   lcd.clear();
   // if within range print the distance
   if (Distance > 2 && Distance < 400) {
-
     lcd.home();
     lcd.print("    Distance: ");
     lcd.setCursor(6, 2);
     lcd.print(Distance);
     lcd.print("cm");
   }
+
   // print if out of range
   else {
     lcd.home();
@@ -211,13 +250,14 @@ int right_detection(){
 void loop() {
   int SL;    //left Sensor status
   int SR;    //Right Sensor status
-  
+
   // ultrasound distances
-  int Front_Distance = 0;
-  int Left_Distance = 0;
-  int Right_Distance = 0;
-  bool keyPressed = false;
-  
+  static bool keyPressed = false;
+
+  // maze pos
+  static int posX = 1;
+  static int posY = 1;
+
   // check for beginning key input
   while (!keyPressed)
     keyPressed = keyscan();
@@ -226,69 +266,125 @@ void loop() {
   SR = digitalRead(SensorRight);
   SL = digitalRead(SensorLeft);
 
-  if (SL == LOW && SR == LOW) // if the car is on the line, go forwards
+  //============================ for line following ====================================
+  // if the car is on the line, go forwards
+  if (SL == LOW && SR == LOW)
     run();
-
   // correct if the car is drifting off to the side
   else if (SL == HIGH && SR == LOW)
     left();
   else if (SL == LOW && SR == HIGH)
     right();
 
-  //if the car hits a junction, check surrounding pathways and do appropriate actions 
+  //=========================== maze algorithm ========================================
+  //if the car hits a junction, check surrounding pathways and do appropriate actions
   else if (SL == HIGH && SR == HIGH) {
+    maze[posX][posY].type = 'v';
+
+    // sets connection pointing backwards from current direction to true
+    maze[posX][posY].connections[dir + 2 + 4 % 4] = true;
+
     // get distance input
     brake(1);
     delay(100);
 
-    // get distances from ultrasound
-    Front_Distance = front_detection();
-    Distance_display(Front_Distance);
+    // check what spaces are avaliable and map to the maze matrix
+    // Check forwards
+    maze[posX][posY].connections[dir] = front_detection() < 20;
     delay(100);
-    Left_Distance = left_detection();
-    Distance_display(Left_Distance);
+    // Check left
+    maze[posX][posY].connections[(dir + 3) % 4] = left_detection() < 20;
     delay(100);
-    Right_Distance = left_detection();
-    Distance_display(Right_Distance);
+    // Check right
+    maze[posX][posY].connections[(dir + 5) % 4] = right_detection() < 20;
     delay(100);
-
-    // if there's a wall in front
-    if (Front_Distance < 20) {
-      
-      // if there's a wall on the left and the right, turn around
-      if (Left_Distance < 25 && Right_Distance < 20) {
+    
+    // check north
+    if (maze[posX][posY].connections[0] && maze[posX - 1][posY].type == 'o' ) {
+      // start turning left
+      if (dir == 1)
         left();
-        // turn 90 degrees twice
-        for (int i = 0; i < 2; i++) {
-          // turn for at LEAST 1 second
-          delay(150);
-          // keep turning untill the car is back on the line (this will turn the car 90 degrees)
-          while (SR != HIGH)
-            SR = digitalRead(SensorRight);
-        }
-      }
 
-      // start turn left or right if available
-      else if (Left_Distance > 20) {
-        left();
-        delay(150);
-        while (SR != HIGH)
-          SR = digitalRead(SensorRight);
-      }
-
-      else {
+      // start turning right
+      else if (dir == 3)
         right();
-        delay(150);
-        while (SL != HIGH)
-          SR = digitalRead(SensorLeft);
-      }
-      brake(1);
-    }
-    // if it hits an intersection and there's space infront, keep going
-    else{
-      run();
-      delay(150);
-    }
-  }
 
+      dir = 0;
+    }
+    // east
+    else if (maze[posX][posY].connections[1] && maze[posX][posY + 1].type == 'o') {
+      // start turning left
+      if (dir == 2)
+        left();
+
+      // start turning right
+      else if (dir == 0)
+        right();
+
+      dir = 1;
+    }
+    // south
+    else if (maze[posX][posY].connections[2] && maze[posX + 1][posY].type == 'o') {
+      // start turning left
+      if (dir == 3)
+        left();
+
+      // start turning right
+      else if (dir == 1)
+        right();
+
+      dir = 2;
+    }
+    // west
+    else if (maze[posX][posY].connections[3] && maze[posX][posY - 1].type == 'o') {
+      // start turning left
+      if (dir == 0)
+        left();
+
+      // start turning right
+      else if (dir == 2)
+        right();
+
+      dir = 3;
+    }
+    // if no openings, turn around
+    else {
+      maze[posX][posY].type = 'x';
+      // turn 90 degrees left, then the next time it turns it will turn it 180
+      left();
+      // turn for at least 2.25 seconds to get past the black line
+      delay(150);
+      // keep turning untill the car is back on the line (this will turn the car 90 degrees)
+      while (SR != HIGH)
+        SR = digitalRead(SensorRight);
+    }
+
+    // turn 90 degrees
+    delay(150);
+    while (SR != HIGH)
+      SR = digitalRead(SensorRight);
+
+    // modify posX and posY based on direction
+    switch (dir) {
+      // pointing north
+      case 0:
+        posX--;
+        break;
+      // east
+      case 1:
+        posY++;
+        break;
+      // south
+      case 2:
+        posX++;
+        break;
+      // west
+      case 3:
+        posY--;
+        break;
+    }
+
+    delay(150);
+    run();
+  }
 }
