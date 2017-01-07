@@ -52,14 +52,15 @@ bool findPath() {
       // print maze if the user presses the button);
       if (keyscan()) {
         printMaze();
+        delay(10000);
         // if the user presses the button again, restart the program
         while (!keyscan());
-        return true();
+        return true;
       }
     }
   }
   //Check if forwards is not physically blocked and is not a part of the solution/dead
-  else if (Distance_test() > 10 && maze[checkRow][checkCol] == OPEN) {
+  else if (Distance_test() > 15 && maze[checkRow][checkCol] == OPEN) {
     lcd.clear();
     lcd.home();
     lcd.print("front is free");
@@ -86,104 +87,6 @@ bool findPath() {
   if (findPath() == false) {
     backtrack();
     return findPath();
-  }
-}
-
-//Move forwards untill the next intersection
-void moveForward() {
-  int SL = LOW;
-  int SR = LOW;    //Left and Right Sensor status, HIGH is on and LOW is off
-
-  //Update curRow and curCol based on where we are going
-  switch (dir) {
-    case NORTH:
-      curRow--;
-      break;
-    case EAST:
-      curCol++;
-      break;
-    case SOUTH:
-      curRow++;
-      break;
-    case WEST:
-      curCol--;
-      break;
-  }
-
-  lcd.clear();
-  lcd.home();
-  lcd.print("RUNRUNRUN");
-  delay(500);
-  // move so that the car is ontop of the line
-  run();
-  delay(100);
-
-  while (SL != HIGH || SR != HIGH) {
-    lcd.clear();
-    lcd.home();
-    lcd.print("Line Following");
-    // read in bottom mounted IR for line detection
-    SR = digitalRead(SensorRight);
-    SL = digitalRead(SensorLeft);
-
-    if (SL == LOW && SR == LOW)
-      run();
-    // correct if the car is drifting off to the side
-    else if (SL == HIGH && SR == LOW)
-      left();
-    else if (SL == LOW && SR == HIGH)
-      right();
-  }
-  brake(5);
-  // run untill the car wheels are on the intersection
-  run();
-  delay(350);
-  //if the car hits a junction, stop
-  brake(5);
-}
-
-//backtrack to the last avaliable path
-void backtrack() {
-  int checkRow;
-  int checkCol;
-
-  lcd.clear();
-  lcd.home();
-  lcd.print("Backtracking...");
-
-  for (int i = 0; i < 3; i++) {
-    checkRow = curRow;
-    checkCol = curCol;
-    // get coordinates of cell infront of robot
-    switch (dir) {
-      case NORTH:
-        checkRow--;
-        break;
-      case EAST:
-        checkCol++;
-        break;
-      case SOUTH:
-        checkRow++;
-        break;
-      case WEST:
-        checkCol--;
-        break;
-    }
-
-    if (Distance_test() > 10 && maze[checkRow][checkCol] == PATH) {
-      delay(100);
-      moveForward();
-      return;
-    }
-
-    turn_left();
-    delay(100);
-  }
-  // error
-  while (!keyscan()) {
-    lcd.clear();
-    lcd.home();
-    lcd.print("ERROR: Can't backtrack");
   }
 }
 

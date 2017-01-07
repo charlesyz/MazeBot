@@ -68,3 +68,14 @@ void spin_left() {
   analogWrite(Left_motor_go, 0);
   analogWrite(Left_motor_back, RunSpeed);
 }
+// turn right by moving the left motor backwards and the right motor forwards
+void spin_right() {
+  digitalWrite(Right_motor_go, LOW);
+  digitalWrite(Right_motor_back, HIGH);
+  analogWrite(Right_motor_go, 0);
+  analogWrite(Right_motor_back, RunSpeed);
+  digitalWrite(Left_motor_go, HIGH);
+  digitalWrite(Left_motor_back, LOW);
+  analogWrite(Left_motor_go, RunSpeed);
+  analogWrite(Left_motor_back, 0);
+}
