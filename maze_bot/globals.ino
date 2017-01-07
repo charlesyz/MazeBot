@@ -19,7 +19,7 @@ const int FrontSensorLeft = A0;   //Left front mounted IR sensor(P3.4 OUT3)
 const int FrontSensorRight = A1; // Right front mounted IR sensor(P3.5 OUT4)
 
 // ============================== globals ==========================================
-const int RunSpeed = 125;        // analog motor speed
+const int RunSpeed = 100;        // analog motor speed
 
 LiquidCrystal lcd(3, 4, 7, 8, 11, 12, 13); // lcd and pins
 

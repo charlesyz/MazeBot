@@ -23,16 +23,12 @@ void moveForward() {
 
   lcd.clear();
   lcd.home();
-  lcd.print("RUNRUNRUN");
-  delay(500);
-  // move so that the car is ontop of the line
-  run();
-  delay(75);
+  lcd.print("MOVING FORWARDS");
+  delay(100);
 
+  // line following
+  run();
   while (SL != HIGH || SR != HIGH) {
-    lcd.clear();
-    lcd.home();
-    lcd.print("Line Following");
     // read in bottom mounted IR for line detection
     SR = digitalRead(SensorRight);
     SL = digitalRead(SensorLeft);
@@ -48,7 +44,7 @@ void moveForward() {
   brake(5);
   // run untill the car wheels are on the intersection
   run();
-  delay(350);
+  delay(300);
   //if the car hits a junction, stop
   brake(5);
 }
@@ -82,6 +78,7 @@ void backtrack() {
     }
 
     if (Distance_test() > 15 && maze[checkRow][checkCol] == PATH) {
+      
       delay(100);
       moveForward();
       return;
@@ -95,7 +92,9 @@ void backtrack() {
   while (!keyscan()) {
     lcd.clear();
     lcd.home();
-    lcd.print("ERROR: Can't backtrack");
+    lcd.print("ERROR:");
+    lcd.setCursor(0,2);
+    lcd.print("Can't backtrack");
   }
 }
 
@@ -228,7 +227,7 @@ bool checkFinish() {
   frontSR = digitalRead(FrontSensorRight);
   frontSL = digitalRead(FrontSensorLeft);
   // maze is complete, flash LCD with victory message
-  if (Distance_test() < 10 && frontSL == HIGH && frontSR == HIGH)
+  if (Distance_test() < 15 && frontSL == HIGH && frontSR == HIGH)
     return true;
 
   return false;
