@@ -108,27 +108,29 @@ void printMaze() {
   // 1 to 5 because that prints the inside of the maze, not the CLOSED border we added
   // We represent each type of cell using a different symbol or letter. Legend below
   for (int i = 1; i < 5; i++) {
+    Serial.print("___ ___ ___ ___\n");
     for (int j = 1; j < 5; j++) {
       switch (maze[i][j]) {
         case OPEN:
-          Serial.print(".\t");
+          Serial.print("| . ");
           break;
         case CLOSED:
-          Serial.print("x\t");
+          Serial.print("| x ");
           break;
         case PATH:
-          Serial.print("+\t");
+          Serial.print("| + ");
           break;
         case START:
-          Serial.print("S\t");
+          Serial.print("| S ");
           break;
         case FINISH:
-          Serial.print("F\t");
+          Serial.print("| F ");
       }
     }
-    Serial.print("\n");
+    Serial.print("|\n___ ___ ___ ___\n\n");
   }
   // Output the legend to the monitor so the user can easily understand it
+  Serial.print("LEGEND\n");
   Serial.print(". is an open space\n x is a closed space\n + is the path");
   Serial.print(" of the robot\n. S is the start\n F is the finish");
 }
