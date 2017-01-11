@@ -105,19 +105,14 @@ void backtrack() {
   }
   
   // Display error message to LCD Output to communicate with user
-  for (;;) {
+  while (!keyscan()) {
+    delay(500);
     lcd.clear();
     lcd.home();
+    lcd.setCursor(5,0);
     lcd.print("ERROR:");
     lcd.setCursor(0,2);
     lcd.print("Can't backtrack");
-    delay(500);
-    lcd.clear();
-    lcd.home();
-    lcd.print("ERROR:");
-    lcd.setCursor(0,2);
-    lcd.print("Maze unsolvable");
-    delay(500);
   }
 }
 

@@ -20,6 +20,7 @@ void brake(int time);  // stop the car for TIME seconds
 void left();           // set the right motor to go (turn left)
 void right();          // set the left motor to go (turn right)
 void spin_left();      // set car to spin left (L motor back, R motor forward)
+void spin_right();     // set car to spin right (R motor back, L motor forward)
 
 // sensors
 bool keyscan();                      // get button input from user
@@ -27,7 +28,6 @@ void Distance_display(int Distance); // display distance on LCD for the user
 float Distance_test();               // test the front distance to objects
 bool checkFinish();                  // check if the finish is reached
 void turn_left();      // turn 90 degress left based on line following
-void turn_right();     // turn 90 degress right based on line following
 void moveForward();    // move forwards until the next intersection (next cell)
 void backtrack();      // backtrack to the last available path
 

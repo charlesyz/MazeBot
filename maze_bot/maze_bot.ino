@@ -41,9 +41,9 @@ void loop() {
   // Output helpful LCD messages to improve user experience and to instruct user on how to start
   lcd.home();     
   lcd.clear();
-  lcd.print("PRESS BUTTON TO");
+  lcd.print("PRESS START");
   lcd.setCursor(0, 2);
-  lcd.print("CONTINUE");
+  lcd.print("BEGIN");
 
   // Check for beginning key input, we don't begin until the user hits the START button
   while (!keyscan());

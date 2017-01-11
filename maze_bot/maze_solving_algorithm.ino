@@ -33,9 +33,10 @@ bool findPath() {
   if (checkFinish()) {    // See if we've reached the goal or not
     lcd.home();   // Give user a congratulatory message if it's solved
     lcd.clear();
-    lcd.print("MAZE COMPLETE!");
+    lcd.setCursor(1, 0);
+    lcd.print("MAZE COMPLETE");
     lcd.setCursor(0, 2);
-    lcd.print("PRESS BUTTON");
+    lcd.print("PLUG IN & PRESS");
     
     // Mark the START and FINISH cells to output to monitor later
     maze[1][1] = START;
@@ -51,8 +52,9 @@ bool findPath() {
         // if the user presses the button again, restart the program
         lcd.home();
         lcd.clear();
+        lcd.setCursor(2, 0);        
         lcd.print("PRESS BUTTON");
-        lcd.setCursor(0, 2);
+        lcd.setCursor(3, 2);
         lcd.print("TO RESTART");
         while (!keyscan());
         return true;
@@ -127,10 +129,10 @@ void printMaze() {
           Serial.print("| F ");
       }
     }
-    Serial.print("|\n___ ___ ___ ___\n\n");
+    Serial.print("|\n");
   }
   // Output the legend to the monitor so the user can easily understand it
-  Serial.print("LEGEND\n");
+  Serial.print("\nLEGEND\n");
   Serial.print(". is an open space\n x is a closed space\n + is the path");
   Serial.print(" of the robot\n. S is the start\n F is the finish");
 }
