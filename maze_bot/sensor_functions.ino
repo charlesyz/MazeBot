@@ -4,7 +4,7 @@
 // Move forwards until the next intersection (moves into the next cell)
 void moveForward() {
   int SL = LOW;    // Left and Right sensor status, HIGH means on and LOW means off
-  int SR = LOW;    
+  int SR = LOW;
 
   // Update where we are, curRow and curCol, based on which direction we are moving
   switch (dir) {
@@ -28,10 +28,10 @@ void moveForward() {
   delay(100);
 
   /* Line following. We go forward staying on a line. The line is black (HIGH)
-   and we are straddled on top of it so we only see the white on the side of the line.
-   If either one of the sensors (SL and SR) becomes HIGH (detects the line), it means we
-   aren't centered on top of the line and we have to correct by either shifting left or right.
-   If both sensors detect black (HIGH), it means that we've hit a junction. */
+    and we are straddled on top of it so we only see the white on the side of the line.
+    If either one of the sensors (SL and SR) becomes HIGH (detects the line), it means we
+    aren't centered on top of the line and we have to correct by either shifting left or right.
+    If both sensors detect black (HIGH), it means that we've hit a junction. */
   run();
   while (SL != HIGH || SR != HIGH) {
     // read in bottom mounted IR and update them for line detection
@@ -47,8 +47,8 @@ void moveForward() {
       right();
   }
   /* If the car hits a junction (intersection), they are now in a new cell.
-  Since the line detection infrared sensors are near the front of the vehicle,
-  We need to run just a little bit so we are more centered above the intersection point*/
+    Since the line detection infrared sensors are near the front of the vehicle,
+    We need to run just a little bit so we are more centered above the intersection point*/
   brake(5);
   run();
   delay(300);
@@ -90,9 +90,9 @@ void backtrack() {
     }
 
     /*If the cell we are facing and checking is not physically blocked at 15cm
-     (distance_test returns the distance to objects in front of the ultrasound sensors)
-     AND it's marked as PATH, which indicates that it's where we explored, we go there
-     by using the moveForward function and stop backtracking by returning */
+      (distance_test returns the distance to objects in front of the ultrasound sensors)
+      AND it's marked as PATH, which indicates that it's where we explored, we go there
+      by using the moveForward function and stop backtracking by returning */
     if (Distance_test() > 15 && maze[checkRow][checkCol] == PATH) {
       delay(100);
       moveForward();
@@ -100,20 +100,19 @@ void backtrack() {
     }
     // If the cell we are facing is not where we came from, we turn and check
     // a different cell, looking for our previous path so we can backtrack
-    turn_left(); 
+    turn_left();
     delay(100);
   }
-  
+
   // Display error message to LCD Output to communicate with user
-  while (!keyscan()) {
-    delay(500);
-    lcd.clear();
-    lcd.home();
-    lcd.setCursor(5,0);
-    lcd.print("ERROR:");
-    lcd.setCursor(0,2);
-    lcd.print("Can't backtrack");
-  }
+  lcd.clear();
+  lcd.home();
+  lcd.setCursor(5, 0);
+  lcd.print("ERROR:");
+  lcd.setCursor(0, 2);
+  lcd.print("Can't backtrack");
+  while (!keyscan());
+
 }
 
 // turn 90 degrees left - based on line following
@@ -121,14 +120,14 @@ void turn_left() {
   int SL, SR; // bottom mounted infrared sensor status, left and right
 
   /* Spin left for at least 2s so the robot moves off its current line.
-  We move because our current line would interfere with our detection.
-  We are looking for the next line on our left */
+    We move because our current line would interfere with our detection.
+    We are looking for the next line on our left */
   spin_left();
   delay(200);
 
   /* Now we keep turning until the car just hits the next line. Since, the line is
-  black, when we turn left, the left sensor will detect black (HIGH) at the line,
-  and the right sensor should still only detect the white board (LOW) */
+    black, when we turn left, the left sensor will detect black (HIGH) at the line,
+    and the right sensor should still only detect the white board (LOW) */
   while (SL != HIGH || SR != LOW) {
     SR = digitalRead(SensorRight);
     SL = digitalRead(SensorLeft);
@@ -136,8 +135,8 @@ void turn_left() {
   brake(1);   // brake for accuracy
 
   /* Now we keep turning until the car is centered on top of the next line, so that
-  means straddling the black line as so the line detectors only detect the white (LOW)
-  that runs along the outer side edges of the narrow strip of black tape */
+    means straddling the black line as so the line detectors only detect the white (LOW)
+    that runs along the outer side edges of the narrow strip of black tape */
   while (SL != LOW || SR != LOW) {
     SR = digitalRead(SensorRight);
     SL = digitalRead(SensorLeft);
@@ -163,7 +162,7 @@ bool keyscan() {
 // display distance on the LCD, clear messages improve user experience
 void Distance_display(int Distance) {
   lcd.clear();
-  
+
   // If something is within the hardware range of the sensor, print the distance
   if (Distance > 2 && Distance < 400) {
     lcd.home();
@@ -197,7 +196,7 @@ float Distance_test() {
   // Echo is input echo pin for ultrasound, HIGH means detected.
   Fdistance = pulseIn(Echo, HIGH);
   // calculate, display, and return distance, 58 is the calibrated conversion from ms to cm
-  Fdistance = Fdistance / 58;     
+  Fdistance = Fdistance / 58;
   Distance_display(Fdistance);
   return Fdistance;
 }
@@ -208,7 +207,7 @@ bool checkFinish() {
   int frontSL;
   frontSR = digitalRead(FrontSensorRight);
   frontSL = digitalRead(FrontSensorLeft);
-  
+
   // If there's a board in front of us, and it's black (HIGH), the maze is complete
   if (Distance_test() < 15 && frontSL == HIGH && frontSR == HIGH)
     return true;

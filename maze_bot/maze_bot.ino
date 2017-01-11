@@ -21,9 +21,9 @@ void setup() {
   lcd.begin(16, 2);         // start LCD
 
   /* NUMROWS and NUMCOLS are both +2 so we can frame the outside with CLOSED cells.
-  Note that numRows and numCols are defined in maze_algorithm.h 
-  The maze borders will be CLOSED so the robot doesn't move off the board.
-  We will make the entire maze CLOSED then make the inner maze OPEN again in the next loop */
+    Note that numRows and numCols are defined in maze_algorithm.h
+    The maze borders will be CLOSED so the robot doesn't move off the board.
+    We will make the entire maze CLOSED then make the inner maze OPEN again in the next loop */
   for (int i = 0; i < NUMROWS + 2; i++)
     for (int j = 0; j < NUMCOLS + 2; j++)
       maze[i][j] = CLOSED;
@@ -32,14 +32,14 @@ void setup() {
   for (int i = 1; i < NUMROWS + 1; i++)
     for (int j = 1; j < NUMCOLS + 1; j++)
       maze[i][j] = OPEN;
-      
+
 }
 
 // The loop function in Arduino is the same thing as the main function in C and C++, except it repeats
 void loop() {
-  
+
   // Output helpful LCD messages to improve user experience and to instruct user on how to start
-  lcd.home();     
+  lcd.home();
   lcd.clear();
   lcd.print("PRESS START");
   lcd.setCursor(0, 2);

@@ -24,9 +24,9 @@ const int RunSpeed = 100;                  // analog motor speed
 LiquidCrystal lcd(3, 4, 7, 8, 11, 12, 13); // LCD and pins
 
 /* 2D Matrix holding the maze information, including each grid cell STATUS
-The cells can be defined as STATUS types START, FINISH, OPEN, CLOSED, or PATH.
-NUMROWS and NUMCOLS are both +2 so we can frame the outside with CLOSED cells.
-Note that numRows and numCols are defined in maze_algorithm.h */
+  The cells can be defined as STATUS types START, FINISH, OPEN, CLOSED, or PATH.
+  NUMROWS and NUMCOLS are both +2 so we can frame the outside with CLOSED cells.
+  Note that numRows and numCols are defined in maze_algorithm.h */
 STATUS maze[NUMROWS + 2][NUMCOLS + 2];
 
 // Keep track of which direction our robot is facing, for mapping and navigation

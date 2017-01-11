@@ -55,8 +55,8 @@ extern const int RunSpeed;          // analog motor speed
 extern LiquidCrystal lcd;           // LCD and pins
 
 /* 2D Matrix holding the maze information, including each grid cell STATUS
-The cells can be defined as STATUS types START, FINISH, OPEN, CLOSED, or PATH.
-NUMROWS and NUMCOLS are both +2 so we can frame the outside with CLOSED cells*/
+  The cells can be defined as STATUS types START, FINISH, OPEN, CLOSED, or PATH.
+  NUMROWS and NUMCOLS are both +2 so we can frame the outside with CLOSED cells*/
 extern STATUS maze[NUMROWS + 2][NUMROWS + 2];
 
 // Keep track of which direction our robot is facing
