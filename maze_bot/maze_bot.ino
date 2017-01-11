@@ -71,4 +71,19 @@ void loop() {
 
   // Call the maze solving algorithm. Time to let the magic happen!
   findPath();
+
+  // Reset variables to reset the program
+  dir = SOUTH;
+  curRow = 1;
+  curCol = 1;
+  
+  // reset maze
+   for (int i = 0; i < NUMROWS + 2; i++)
+    for (int j = 0; j < NUMCOLS + 2; j++)
+      maze[i][j] = CLOSED;
+      
+  for (int i = 1; i < NUMROWS + 1; i++)
+    for (int j = 1; j < NUMCOLS + 1; j++)
+      maze[i][j] = OPEN;
+  
 }
