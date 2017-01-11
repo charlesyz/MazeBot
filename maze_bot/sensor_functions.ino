@@ -105,14 +105,15 @@ void backtrack() {
   }
 
   // Display error message to LCD Output to communicate with user
-  lcd.clear();
-  lcd.home();
-  lcd.setCursor(5, 0);
-  lcd.print("ERROR:");
-  lcd.setCursor(0, 2);
-  lcd.print("Can't backtrack");
-  while (!keyscan());
-
+  while (!keyscan()) {
+    delay(500);
+    lcd.clear();
+    lcd.home();
+    lcd.setCursor(5, 0);
+    lcd.print("ERROR:");
+    lcd.setCursor(0, 2);
+    lcd.print("Can't backtrack");
+  }
 }
 
 // turn 90 degrees left - based on line following
